@@ -3,3 +3,6 @@ bin
 include
 lib
 lib64
+
+.venv
+__pycache__
