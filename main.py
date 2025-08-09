@@ -50,3 +50,5 @@ def on_message_print(client, userdata, message):
         #     print("New Team: " + current_team)
 
 paho.callback(on_message_print, mqtt_topic, hostname=broker_addr, userdata={"message_count": 0})
+
+# asyncio.run(artctl.loop())
