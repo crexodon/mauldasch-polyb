@@ -21,15 +21,11 @@ class ArtNetController:
     animation_time = 0.02   # s, time step
 
     # https://gen.polyb.io/posts/WHY2025/
-    # 1=pink
-    # 2=yellow
-    # 3=cyan
-    # 4=red
     team_colors = [
-        [255, 0, 127],
-        [255, 100, 0],
-        [0, 200, 200],
-        [255, 0, 0]
+        [200, 0, 100],  # pink
+        [255, 100, 0],  # yellow
+        [0, 127, 127],  # cyan
+        [255, 0, 0]     # red
     ]
 
     universe: impl_artnet.ArtNetUniverse
@@ -83,6 +79,7 @@ class ArtNetController:
         # await self.set_color(color, 1)
 
     async def animation_loop(self):
+        cur_step = 0
         while self.running:
             if not self.anim_queue.empty():
                 event = self.anim_queue.get_nowait()
@@ -90,13 +87,19 @@ class ArtNetController:
                 if (event["color"] and event["anim"]):
                     self.current_color = event["color"]
                     self.current_anim = event["anim"]
+
             
             for i in range(self.num_fixtures):
-                cur_step = math.floor(time.time() % (self.animation_speed * 3)) // self.animation_speed     # idk either xD
-                color = self.current_color if (cur_step == i % 3) else [0, 0, 0]
-                self.rgb_channels[i].set_fade(color, self.animation_speed * 950)
+                #cur_step = math.floor(time.time() % (self.animation_speed * 3)) // self.animation_speed     # idk either xD
+                color = self.current_color if (cur_step == i) else [0, 0, 0]
+                self.rgb_channels[i].set_fade(color, self.animation_speed * 1000)
                 # print(cur_step)
-            await asyncio.gather(*self.rgb_channels)
+            cur_step += 1
+            if cur_step >= self.num_fixtures:
+                cur_step = 0
+            # print(cur_step)
+            
+            await asyncio.gather(*self.rgb_channels)    # waits for fade to finish
 
             # print(self.current_color)
 
